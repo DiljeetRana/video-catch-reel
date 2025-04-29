@@ -13,3 +13,7 @@ export interface ImageOverlayProps {
   lakeName: string;
   weight: number;
 }
+
+export interface VideoPreviewProps {
+  videoUrl: string;
+}

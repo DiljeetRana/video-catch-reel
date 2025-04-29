@@ -4,6 +4,7 @@ import { SelectedImage, ImageOverlayProps } from "../types/types";
 import { createVideoFromImages, downloadVideo, shareToSocialMedia } from "../utils/videoUtils";
 import ImageSelector from "./ImageSelector";
 import SelectedImagesPreview from "./SelectedImagesPreview";
+import VideoPreview from "./VideoPreview";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Facebook, Twitter, Instagram, Video, Download, Play, Share } from "lucide-react";
@@ -25,7 +26,8 @@ const sampleImages = [
 const FishingVideoCreator: React.FC = () => {
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
-  const [createdVideo, setCreatedVideo] = useState<Blob | null>(null);
+  const [createdVideoBlob, setCreatedVideoBlob] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSelectImage = (image: SelectedImage) => {
@@ -66,8 +68,9 @@ const FishingVideoCreator: React.FC = () => {
 
     setIsCreatingVideo(true);
     try {
-      const videoBlob = await createVideoFromImages(selectedImages);
-      setCreatedVideo(videoBlob);
+      const { videoBlob, videoUrl } = await createVideoFromImages(selectedImages);
+      setCreatedVideoBlob(videoBlob);
+      setVideoUrl(videoUrl);
       toast({
         title: "Video created successfully!",
         description: "Your fishing catch video is ready to share or download.",
@@ -85,7 +88,7 @@ const FishingVideoCreator: React.FC = () => {
   };
 
   const handleShareVideo = (platform: "facebook" | "twitter" | "instagram") => {
-    if (!createdVideo) {
+    if (!videoUrl) {
       toast({
         title: "No video to share",
         description: "Please create a video first",
@@ -94,7 +97,7 @@ const FishingVideoCreator: React.FC = () => {
       return;
     }
 
-    shareToSocialMedia(createdVideo, platform);
+    shareToSocialMedia(videoUrl, platform);
     toast({
       title: "Sharing video",
       description: `Opening ${platform} share dialog...`,
@@ -102,7 +105,7 @@ const FishingVideoCreator: React.FC = () => {
   };
 
   const handleDownloadVideo = () => {
-    if (!createdVideo) {
+    if (!createdVideoBlob) {
       toast({
         title: "No video to download",
         description: "Please create a video first",
@@ -111,7 +114,7 @@ const FishingVideoCreator: React.FC = () => {
       return;
     }
 
-    downloadVideo(createdVideo);
+    downloadVideo(createdVideoBlob);
     toast({
       title: "Downloading video",
       description: "Your video download has started",
@@ -158,7 +161,7 @@ const FishingVideoCreator: React.FC = () => {
           )}
         </Button>
 
-        {createdVideo && (
+        {videoUrl && (
           <>
             <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
               <Download className="mr-2 h-4 w-4" />
@@ -193,6 +196,12 @@ const FishingVideoCreator: React.FC = () => {
           </>
         )}
       </div>
+
+      {videoUrl && (
+        <div className="mb-8">
+          <VideoPreview videoUrl={videoUrl} />
+        </div>
+      )}
 
       <Tabs defaultValue="gallery" className="w-full">
         <TabsList className="mb-4">
