@@ -7,9 +7,11 @@ import SelectedImagesPreview from "./SelectedImagesPreview";
 import VideoPreview from "./VideoPreview";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Share } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Share, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 
 // Sample placeholder images - in a real app, these would come from an API or local storage
 const sampleImages = [
@@ -28,7 +30,14 @@ const FishingVideoCreator: React.FC = () => {
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
   const [createdVideoBlob, setCreatedVideoBlob] = useState<Blob | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [secondsPerFrame, setSecondsPerFrame] = useState<number>(2);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
   const { toast } = useToast();
+
+  // Calculate the estimated video duration based on the number of images and seconds per frame
+  const calculateVideoDuration = () => {
+    return selectedImages.length * secondsPerFrame;
+  };
 
   const handleSelectImage = (image: SelectedImage) => {
     if (image.selected) {
@@ -68,9 +77,16 @@ const FishingVideoCreator: React.FC = () => {
 
     setIsCreatingVideo(true);
     try {
-      const { videoBlob, videoUrl } = await createVideoFromImages(selectedImages);
+      // Calculate FPS as 1/secondsPerFrame
+      const fps = 1 / secondsPerFrame;
+      const { videoBlob, videoUrl } = await createVideoFromImages(selectedImages, fps);
       setCreatedVideoBlob(videoBlob);
       setVideoUrl(videoUrl);
+      
+      // Set video duration
+      const duration = calculateVideoDuration();
+      setVideoDuration(duration);
+      
       toast({
         title: "Video created successfully!",
         description: "Your fishing catch video is ready to share or download.",
@@ -145,6 +161,41 @@ const FishingVideoCreator: React.FC = () => {
         />
       </div>
 
+      {/* Video settings section */}
+      <div className="mb-8 bg-white rounded-lg p-5 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4 text-blue-600 flex items-center">
+          <Clock className="mr-2 h-5 w-5" />
+          Video Settings
+        </h2>
+        
+        <div className="mb-4">
+          <Label htmlFor="secondsPerFrame" className="mb-2 block">
+            Seconds per Frame: {secondsPerFrame}s
+          </Label>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">0.5s</span>
+            <Slider
+              id="secondsPerFrame"
+              defaultValue={[2]}
+              min={0.5}
+              max={5}
+              step={0.5}
+              value={[secondsPerFrame]}
+              onValueChange={(value) => setSecondsPerFrame(value[0])}
+              className="max-w-xs"
+            />
+            <span className="text-sm text-gray-500">5s</span>
+          </div>
+        </div>
+        
+        <div className="text-sm text-gray-600 flex items-center">
+          <span>Estimated video duration: </span>
+          <span className="ml-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+            {selectedImages.length > 0 ? `${calculateVideoDuration()} seconds` : "0 seconds"}
+          </span>
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-4 mb-8 justify-center sm:justify-start">
         <Button
           onClick={handleCreateVideo}
@@ -199,7 +250,7 @@ const FishingVideoCreator: React.FC = () => {
 
       {videoUrl && (
         <div className="mb-8">
-          <VideoPreview videoUrl={videoUrl} />
+          <VideoPreview videoUrl={videoUrl} duration={videoDuration} />
         </div>
       )}
 

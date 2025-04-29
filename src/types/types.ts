@@ -16,4 +16,6 @@ export interface ImageOverlayProps {
 
 export interface VideoPreviewProps {
   videoUrl: string;
+  duration: number;
 }
+

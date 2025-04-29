@@ -8,7 +8,7 @@ export const createVideoFromImages = async (
   // In a real implementation, this would use a library like ffmpeg.wasm
   // For this demo, we'll create a simple video from an HTML canvas
   return new Promise((resolve) => {
-    console.log("Creating video from images:", images);
+    console.log("Creating video from images:", images, "with fps:", fps);
     
     // Create a canvas element to draw our video frames
     const canvas = document.createElement("canvas");
@@ -45,7 +45,7 @@ export const createVideoFromImages = async (
     mediaRecorder.start();
     
     let frameIndex = 0;
-    const frameDuration = 1000 / fps;
+    const frameDuration = 1000 / fps; // Convert fps to milliseconds between frames
     
     // Function to draw the next frame
     const drawNextFrame = async () => {
