@@ -2,7 +2,7 @@
 import React from "react";
 import { VideoPreviewProps } from "../types/types";
 import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
+import { Clock, Video } from "lucide-react";
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({ videoUrl, duration }) => {
   if (!videoUrl) {
@@ -24,7 +24,10 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({ videoUrl, duration }) => {
       transition={{ duration: 0.5 }}
     >
       <div className="p-4 bg-blue-600 text-white font-medium flex justify-between items-center">
-        <span>Video Preview</span>
+        <div className="flex items-center">
+          <Video className="w-5 h-5 mr-2" />
+          <span>Video Preview</span>
+        </div>
         <div className="flex items-center text-sm">
           <Clock className="w-4 h-4 mr-1" />
           <span>Duration: {formatDuration(duration)}</span>
