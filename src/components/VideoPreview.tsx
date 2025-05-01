@@ -37,7 +37,6 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({ videoUrl, duration }) => {
         src={videoUrl}
         controls
         className="w-full aspect-video bg-black" 
-        autoPlay
       />
     </motion.div>
   );
