@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SelectedImage, ImageOverlayProps } from "../types/types";
-import { createVideoFromImages, downloadVideo, shareToSocialMedia } from "../utils/videoUtils";
+import { createVideoFromImages, downloadVideo, shareToSocialMedia, copyVideoLink } from "../utils/videoUtils";
 import ImageSelector from "./ImageSelector";
 import SelectedImagesPreview from "./SelectedImagesPreview";
 import VideoPreview from "./VideoPreview";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2 } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
@@ -145,6 +145,32 @@ const FishingVideoCreator: React.FC = () => {
       title: "Downloading video",
       description: "Your video download has started",
     });
+  };
+
+  const handleCopyVideoLink = async () => {
+    if (!videoUrl) {
+      toast({
+        title: "No video to copy",
+        description: "Please create a video first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const success = await copyVideoLink(videoUrl);
+    
+    if (success) {
+      toast({
+        title: "Link copied",
+        description: "Video link copied to clipboard",
+      });
+    } else {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy video link to clipboard",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportVideo = () => {
@@ -323,6 +349,11 @@ const FishingVideoCreator: React.FC = () => {
                     <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
                       <Download className="mr-2 h-4 w-4" />
                       Download
+                    </Button>
+                    
+                    <Button onClick={handleCopyVideoLink} variant="outline" className="border-purple-500 text-purple-500">
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Link
                     </Button>
                     
                     <div className="flex gap-2">

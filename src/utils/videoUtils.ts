@@ -1,4 +1,3 @@
-
 import { SelectedImage } from "../types/types";
 
 export const createVideoFromImages = async (
@@ -164,6 +163,16 @@ export const downloadVideo = (videoBlob: Blob, fileName: string = "fishing-catch
   a.click();
   window.URL.revokeObjectURL(url);
   document.body.removeChild(a);
+};
+
+export const copyVideoLink = async (videoUrl: string): Promise<boolean> => {
+  try {
+    await navigator.clipboard.writeText(videoUrl);
+    return true;
+  } catch (error) {
+    console.error("Failed to copy video link:", error);
+    return false;
+  }
 };
 
 // Generate a random lake name for demonstration purposes
