@@ -36,17 +36,14 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ timestamp, lakeName, weight
           </motion.div>
           
           <motion.div 
-            className={cn(
-              "flex items-center justify-center rounded-full h-16 w-16 bg-blue-500 shadow-lg",
-              "border-2 border-white font-bold"
-            )}
+            className="text-right font-bold"
             initial={{ scale: 0 }}
-            animate={{ scale: 1, rotate: [0, 15, 0] }}
-            transition={{ delay: 0.4, duration: 0.5, type: "spring" }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
           >
-            <div>
-              <div className="text-sm leading-none">CATCH</div>
-              <div className="text-xl">{weight} <span className="text-xs">LBS</span></div>
+            <span className="text-sm text-white/80">CATCH</span>
+            <div className="text-2xl text-white">
+              {weight} <span className="text-sm">LBS</span>
             </div>
           </motion.div>
         </div>

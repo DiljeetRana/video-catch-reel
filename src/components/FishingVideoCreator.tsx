@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { SelectedImage, ImageOverlayProps } from "../types/types";
 import { createVideoFromImages, downloadVideo, shareToSocialMedia } from "../utils/videoUtils";
@@ -148,19 +147,6 @@ const FishingVideoCreator: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="mb-8 text-center"
-      >
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-blue-700">
-          Fishing Catch Video Creator
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Select images of your fishing catches, add details, and create shareable videos to showcase your best moments on the water
-        </p>
-      </motion.div>
-
       {/* Catch Images Section - Always shown prominently */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
