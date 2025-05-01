@@ -10,40 +10,34 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ timestamp, lakeName, weight
     day: "numeric",
     year: "numeric",
   });
-  
-  const formattedTime = new Date(timestamp).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
   return (
-    <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
+    <div className="absolute inset-0 flex flex-col justify-end p-2 text-white pointer-events-none">
       <motion.div 
-        className="bg-black bg-opacity-50 p-3 rounded-lg backdrop-blur-sm"
+        className="bg-black bg-opacity-40 p-2 rounded-md backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col space-y-0.5">
           <motion.div 
-            className="text-left"
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            <h3 className="font-bold text-lg tracking-wide">{lakeName}</h3>
-            <p className="text-sm opacity-90">{formattedDate} • {formattedTime}</p>
+            <h3 className="font-medium text-sm tracking-wide text-white">{lakeName}</h3>
           </motion.div>
           
           <motion.div 
-            className="text-right font-bold"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            className="flex justify-between items-center text-xs"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
           >
-            <span className="text-sm text-white/80">CATCH</span>
-            <div className="text-2xl text-white">
-              {weight} <span className="text-sm">LBS</span>
+            <span className="text-gray-200">{formattedDate}</span>
+            <div className="text-gray-200">
+              <span>Weight: </span>
+              <span className="font-semibold text-white">{weight} lbs</span>
             </div>
           </motion.div>
         </div>
