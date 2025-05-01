@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
@@ -57,6 +57,14 @@ const FishingVideoCreator: React.FC = () => {
     setSelectedImages((prev) =>
       prev.filter((image) => image.id !== id)
     );
+  };
+
+  const handleClearSelection = () => {
+    setSelectedImages([]);
+    toast({
+      title: "Selection cleared",
+      description: "All selected images have been removed",
+    });
   };
 
   const handleUpdateImageDetails = (id: number, details: Partial<ImageOverlayProps>) => {
@@ -163,13 +171,24 @@ const FishingVideoCreator: React.FC = () => {
               </h2>
               
               {selectedCount > 0 && (
-                <Button
-                  onClick={handleExportVideo}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Video className="mr-2 h-5 w-5" />
-                  Export {selectedCount} {selectedCount === 1 ? 'Image' : 'Images'} to Video
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleExportVideo}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Video className="mr-2 h-5 w-5" />
+                    Export {selectedCount} {selectedCount === 1 ? 'Image' : 'Images'} to Video
+                  </Button>
+                  
+                  <Button
+                    onClick={handleClearSelection}
+                    variant="outline"
+                    className="border-red-500 text-red-500 hover:bg-red-50"
+                  >
+                    <Trash2 className="mr-2 h-5 w-5" />
+                    Clear Selection
+                  </Button>
+                </div>
               )}
             </div>
             
@@ -200,13 +219,24 @@ const FishingVideoCreator: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-blue-600">Selected Images ({selectedCount})</h2>
               
-              <Button
-                onClick={handleExportVideo}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Video className="mr-2 h-5 w-5" />
-                Export to Video
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleExportVideo}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Video className="mr-2 h-5 w-5" />
+                  Export to Video
+                </Button>
+                
+                <Button
+                  onClick={handleClearSelection}
+                  variant="outline"
+                  className="border-red-500 text-red-500 hover:bg-red-50"
+                >
+                  <Trash2 className="mr-2 h-5 w-5" />
+                  Clear
+                </Button>
+              </div>
             </div>
             
             <SelectedImagesPreview
