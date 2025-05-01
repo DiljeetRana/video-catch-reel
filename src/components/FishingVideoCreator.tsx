@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle, Youtube, Shuffle } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle, Youtube } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
@@ -92,24 +92,31 @@ const FishingVideoCreator: React.FC = () => {
     );
   };
 
-  // New function to shuffle the selected images
-  const handleShuffleImages = () => {
-    setSelectedImages(prevImages => {
-      // Create a new array to avoid mutating the state directly
-      const shuffled = [...prevImages];
-      
-      // Fisher-Yates shuffle algorithm
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      
-      toast({
-        title: "Images shuffled",
-        description: "Image sequence has been randomized",
-      });
-      
-      return shuffled;
+  // New function to move images up or down in the sequence
+  const handleMoveImage = (id: number, direction: "up" | "down") => {
+    const currentImages = [...selectedImages];
+    const currentIndex = currentImages.findIndex(img => img.id === id);
+    
+    if (currentIndex === -1) return;
+    
+    // Calculate the target index
+    const targetIndex = direction === "up" 
+      ? Math.max(0, currentIndex - 1) 
+      : Math.min(currentImages.length - 1, currentIndex + 1);
+    
+    // Don't do anything if we're already at the boundary
+    if (targetIndex === currentIndex) return;
+    
+    // Swap the elements
+    const temp = currentImages[targetIndex];
+    currentImages[targetIndex] = currentImages[currentIndex];
+    currentImages[currentIndex] = temp;
+    
+    setSelectedImages(currentImages);
+    
+    toast({
+      title: `Image moved ${direction}`,
+      description: `Reordered images sequence (${currentIndex + 1} → ${targetIndex + 1})`,
     });
   };
 
@@ -303,15 +310,6 @@ const FishingVideoCreator: React.FC = () => {
               
               <div className="flex gap-2 flex-wrap">
                 <Button
-                  onClick={handleShuffleImages}
-                  variant="outline"
-                  className="border-purple-500 text-purple-500 hover:bg-purple-50"
-                >
-                  <Shuffle className="mr-2 h-5 w-5" />
-                  Shuffle Order
-                </Button>
-                
-                <Button
                   onClick={handleExportVideo}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
@@ -330,10 +328,18 @@ const FishingVideoCreator: React.FC = () => {
               </div>
             </div>
             
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm">
+              <p className="flex items-center text-blue-700">
+                <span className="inline-flex items-center justify-center w-5 h-5 mr-2 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">i</span>
+                Click the arrow buttons to reorder images. The sequence shown here will be used in the video.
+              </p>
+            </div>
+            
             <SelectedImagesPreview
               selectedImages={selectedImages}
               onRemoveImage={handleRemoveImage}
               onUpdateImageDetails={handleUpdateImageDetails}
+              onMoveImage={handleMoveImage}
             />
           </Card>
         </motion.div>
