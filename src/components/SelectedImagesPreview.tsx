@@ -91,18 +91,26 @@ const SelectedImagesPreview: React.FC<SelectedImagesPreviewProps> = ({
               <div className="flex gap-2 text-xs">
                 <button 
                   className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded hover:bg-white/30 text-white"
-                  onClick={() => onUpdateImageDetails(image.id, { 
-                    lakeName: prompt("Enter lake name:", image.lakeName) || image.lakeName 
-                  })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newLakeName = prompt("Enter lake name:", image.lakeName);
+                    if (newLakeName !== null) {
+                      onUpdateImageDetails(image.id, { lakeName: newLakeName });
+                    }
+                  }}
                 >
                   Edit Lake
                 </button>
                 <button 
                   className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded hover:bg-white/30 text-white"
-                  onClick={() => {
-                    const weight = prompt("Enter catch weight (lbs):", image.weight.toString());
-                    if (weight) {
-                      onUpdateImageDetails(image.id, { weight: parseFloat(weight) });
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const weightStr = prompt("Enter catch weight (lbs):", image.weight.toString());
+                    if (weightStr !== null) {
+                      const weight = parseFloat(weightStr);
+                      if (!isNaN(weight)) {
+                        onUpdateImageDetails(image.id, { weight });
+                      }
                     }
                   }}
                 >

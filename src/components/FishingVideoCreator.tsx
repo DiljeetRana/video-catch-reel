@@ -154,11 +154,6 @@ const FishingVideoCreator: React.FC = () => {
       
       // Hide the video settings after successful creation
       setShowVideoSettings(false);
-      
-      toast({
-        title: "Video created successfully!",
-        description: "Your fishing catch video is ready to share or download.",
-      });
     } catch (error) {
       toast({
         title: "Error creating video",
@@ -183,10 +178,7 @@ const FishingVideoCreator: React.FC = () => {
     }
 
     shareToSocialMedia(videoUrl, platform);
-    toast({
-      title: "Sharing video",
-      description: `Opening ${platform} share dialog...`,
-    });
+    // No toast here to avoid interfering with the dialog
   };
 
   const handleDownloadVideo = () => {
@@ -200,10 +192,7 @@ const FishingVideoCreator: React.FC = () => {
     }
 
     downloadVideo(createdVideoBlob);
-    toast({
-      title: "Downloading video",
-      description: "Your video download has started",
-    });
+    // No toast here to avoid interfering with the dialog
   };
 
   const handleCopyVideoLink = async () => {
@@ -219,10 +208,8 @@ const FishingVideoCreator: React.FC = () => {
     const success = await copyVideoLink(videoUrl);
     
     if (success) {
-      toast({
-        title: "Link copied",
-        description: "Video link copied to clipboard",
-      });
+      // Use a more subtle notification that doesn't interfere with the dialog
+      console.log("Video link copied to clipboard");
     } else {
       toast({
         title: "Copy failed",
@@ -468,7 +455,7 @@ const FishingVideoCreator: React.FC = () => {
                 )}
               </CollapsibleContent>
 
-              {/* Video Preview Section */}
+              {/* Video Preview Section - Now displays immediately and properly handles loading state */}
               {(videoUrl || isVideoPreviewLoading) && (
                 <div className="mt-4">
                   {!showVideoSettings && (
