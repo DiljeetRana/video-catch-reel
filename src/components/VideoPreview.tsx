@@ -2,10 +2,10 @@
 import React from "react";
 import { VideoPreviewProps } from "../types/types";
 import { motion } from "framer-motion";
-import { Clock, Video, LoaderCircle, Youtube } from "lucide-react";
+import { Clock, Video, LoaderCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const VideoPreview: React.FC<VideoPreviewProps> = ({ 
+const VideoPreview: React.FC<VideoPreviewProps & { isLoading?: boolean }> = ({ 
   videoUrl, 
   duration,
   isLoading = false,

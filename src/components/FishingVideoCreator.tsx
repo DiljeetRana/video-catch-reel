@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { SelectedImage, ImageOverlayProps } from "../types/types";
 import { 
@@ -16,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle, Youtube, Shuffle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
@@ -91,6 +90,27 @@ const FishingVideoCreator: React.FC = () => {
         image.id === id ? { ...image, ...details } : image
       )
     );
+  };
+
+  // New function to shuffle the selected images
+  const handleShuffleImages = () => {
+    setSelectedImages(prevImages => {
+      // Create a new array to avoid mutating the state directly
+      const shuffled = [...prevImages];
+      
+      // Fisher-Yates shuffle algorithm
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      
+      toast({
+        title: "Images shuffled",
+        description: "Image sequence has been randomized",
+      });
+      
+      return shuffled;
+    });
   };
 
   const handleCreateVideo = async () => {
@@ -281,7 +301,16 @@ const FishingVideoCreator: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-blue-600">Selected Images ({selectedCount})</h2>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  onClick={handleShuffleImages}
+                  variant="outline"
+                  className="border-purple-500 text-purple-500 hover:bg-purple-50"
+                >
+                  <Shuffle className="mr-2 h-5 w-5" />
+                  Shuffle Order
+                </Button>
+                
                 <Button
                   onClick={handleExportVideo}
                   className="bg-green-600 hover:bg-green-700 text-white"

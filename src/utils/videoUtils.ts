@@ -201,12 +201,12 @@ export const shareToSocialMedia = (
       shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(videoUrl)}&text=${encodeURIComponent("Check out my latest fishing catch!")}`;
       break;
     case "youtube":
-      // YouTube doesn't support direct URL sharing via web API, show instruction toast instead
-      alert("To share on YouTube: Save the video first, then upload it through YouTube Studio");
+      // Let users know how to share since YouTube doesn't have a direct web API
+      window.open("https://www.youtube.com/upload", "_blank");
       return;
     case "instagram":
-      // Instagram doesn't support direct URL sharing via web, show instruction toast instead
-      alert("To share on Instagram: Save the video first, then upload it through the Instagram app");
+      // Instagram doesn't have a direct web API either, open instagram website
+      window.open("https://www.instagram.com", "_blank");
       return;
   }
   
