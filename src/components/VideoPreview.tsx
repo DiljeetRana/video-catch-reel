@@ -2,20 +2,17 @@
 import React from "react";
 import { VideoPreviewProps } from "../types/types";
 import { motion } from "framer-motion";
-import { Clock, Video } from "lucide-react";
+import { Clock, Video, LoaderCircle, Youtube } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({ 
   videoUrl, 
   duration,
+  isLoading = false,
   className = "" 
 }) => {
   const isMobile = useIsMobile();
   
-  if (!videoUrl) {
-    return null;
-  }
-
   // Format the duration nicely
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -40,13 +37,25 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           <span>Duration: {formatDuration(duration)}</span>
         </div>
       </div>
-      <video 
-        src={videoUrl}
-        controls
-        controlsList="nodownload" 
-        className="w-full h-full bg-black" 
-        playsInline // Better for mobile
-      />
+      
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center bg-black w-full h-40 text-white p-4">
+          <LoaderCircle className="animate-spin h-10 w-10 mb-2" />
+          <p>Generating video preview...</p>
+        </div>
+      ) : videoUrl ? (
+        <video 
+          src={videoUrl}
+          controls
+          controlsList="nodownload" 
+          className="w-full h-full bg-black" 
+          playsInline // Better for mobile
+        />
+      ) : (
+        <div className="bg-gray-800 w-full h-40 flex items-center justify-center text-gray-400">
+          <p>No video available</p>
+        </div>
+      )}
     </motion.div>
   );
 };

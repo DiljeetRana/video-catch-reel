@@ -1,3 +1,4 @@
+
 import { SelectedImage } from "../types/types";
 
 // Define video aspect ratio options for different platforms
@@ -130,40 +131,40 @@ export const createVideoFromImages = async (
         
         ctx!.drawImage(img, x, y, drawWidth, drawHeight);
         
-        // Draw the overlay information - UPDATED to match ImageOverlay component
-        // Background overlay for entire image to match the image style
+        // Background overlay for entire image
         ctx!.fillStyle = "rgba(0, 0, 0, 0.2)";
         ctx!.fillRect(0, 0, width, height);
         
-        // Bottom overlay with background blur effect (can't actually blur in Canvas API easily)
+        // Bottom overlay for date and weight
         ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
         ctx!.fillRect(0, height - 70, width, 70);
         
-        // Top overlay
-        ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
-        ctx!.fillRect(0, 0, width, 40);
-        
-        // Draw lake name at the top with white text
-        ctx!.fillStyle = "white";
-        ctx!.font = `bold ${Math.max(16, Math.round(width * 0.03))}px sans-serif`;
-        ctx!.textAlign = "left";
-        ctx!.fillText(image.lakeName, 15, 26);
-        
-        // Draw date on bottom left with white text
+        // Format date
         const formattedDate = new Date(image.timestamp).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           year: "numeric",
         });
-        ctx!.font = `${Math.max(12, Math.round(width * 0.022))}px sans-serif`;
-        ctx!.fillText(formattedDate, 15, height - 35);
         
-        // Draw weight on bottom right with white text
+        // Draw lake name, date and weight in bottom overlay (UPDATED LAYOUT)
+        ctx!.fillStyle = "white";
+        
+        // Lake name on top line
+        ctx!.font = `bold ${Math.max(14, Math.round(width * 0.025))}px sans-serif`;
+        ctx!.textAlign = "left";
+        ctx!.fillText(image.lakeName, 15, height - 45);
+        
+        // Date on bottom left
+        ctx!.font = `${Math.max(12, Math.round(width * 0.022))}px sans-serif`;
+        ctx!.fillText(formattedDate, 15, height - 20);
+        
+        // Weight on bottom right
         ctx!.textAlign = "right";
         ctx!.font = `${Math.max(12, Math.round(width * 0.022))}px sans-serif`;
-        ctx!.fillText("Weight:", width - 75, height - 35);
+        ctx!.fillText("Weight:", width - 75, height - 20);
         ctx!.font = `bold ${Math.max(14, Math.round(width * 0.025))}px sans-serif`;
-        ctx!.fillText(`${image.weight} lbs`, width - 15, height - 35);
+        ctx!.fillText(`${image.weight} lbs`, width - 15, height - 20);
+        
         ctx!.textAlign = "left"; // Reset alignment
         
         // Move to the next frame after the frame duration
@@ -187,7 +188,7 @@ export const createVideoFromImages = async (
 
 export const shareToSocialMedia = (
   videoUrl: string,
-  platform: "facebook" | "twitter" | "instagram"
+  platform: "facebook" | "twitter" | "instagram" | "youtube"
 ) => {
   // Implement sharing functionality based on platform
   let shareUrl = "";
@@ -199,6 +200,10 @@ export const shareToSocialMedia = (
     case "twitter":
       shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(videoUrl)}&text=${encodeURIComponent("Check out my latest fishing catch!")}`;
       break;
+    case "youtube":
+      // YouTube doesn't support direct URL sharing via web API, show instruction toast instead
+      alert("To share on YouTube: Save the video first, then upload it through YouTube Studio");
+      return;
     case "instagram":
       // Instagram doesn't support direct URL sharing via web, show instruction toast instead
       alert("To share on Instagram: Save the video first, then upload it through the Instagram app");

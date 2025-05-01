@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { SelectedImage, ImageOverlayProps } from "../types/types";
 import { 
@@ -15,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle } from "lucide-react";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle, Youtube } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
@@ -25,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Sample placeholder images - in a real app, these would come from an API or local storage
 const sampleImages = [
@@ -48,6 +50,8 @@ const FishingVideoCreator: React.FC = () => {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedVideoFormat, setSelectedVideoFormat] = useState<VideoFormat>(VIDEO_FORMATS.landscape);
+  const [showVideoSettings, setShowVideoSettings] = useState(true);
+  const [isVideoPreviewLoading, setIsVideoPreviewLoading] = useState(false);
   const { toast } = useToast();
 
   // Calculate the estimated video duration based on the number of images and seconds per frame
@@ -101,6 +105,8 @@ const FishingVideoCreator: React.FC = () => {
 
     setIsCreatingVideo(true);
     setProgress(0);
+    setIsVideoPreviewLoading(true);
+    
     try {
       // Calculate FPS as 1/secondsPerFrame
       const fps = 1 / secondsPerFrame;
@@ -119,6 +125,9 @@ const FishingVideoCreator: React.FC = () => {
       const duration = calculateVideoDuration();
       setVideoDuration(duration);
       
+      // Hide the video settings after successful creation
+      setShowVideoSettings(false);
+      
       toast({
         title: "Video created successfully!",
         description: "Your fishing catch video is ready to share or download.",
@@ -132,10 +141,11 @@ const FishingVideoCreator: React.FC = () => {
       console.error("Error creating video:", error);
     } finally {
       setIsCreatingVideo(false);
+      setIsVideoPreviewLoading(false);
     }
   };
 
-  const handleShareVideo = (platform: "facebook" | "twitter" | "instagram") => {
+  const handleShareVideo = (platform: "facebook" | "twitter" | "instagram" | "youtube") => {
     if (!videoUrl) {
       toast({
         title: "No video to share",
@@ -197,6 +207,10 @@ const FishingVideoCreator: React.FC = () => {
 
   const handleExportVideo = () => {
     setVideoDialogOpen(true);
+  };
+
+  const handleEditSettings = () => {
+    setShowVideoSettings(true);
   };
 
   const selectedCount = selectedImages.length;
@@ -307,164 +321,201 @@ const FishingVideoCreator: React.FC = () => {
           </DialogHeader>
           
           <div className="space-y-6 my-4">
-            {/* Video Settings Section */}
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-3 text-blue-600 flex items-center">
-                <Clock className="mr-2 h-5 w-5" />
-                Video Settings
-              </h3>
-              
-              {/* Duration settings */}
-              <div className="mb-4">
-                <Label htmlFor="secondsPerFrame" className="mb-2 block">
-                  Seconds per Image: {secondsPerFrame}s
-                </Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">0.5s</span>
-                  <Slider
-                    id="secondsPerFrame"
-                    defaultValue={[2]}
-                    min={0.5}
-                    max={5}
-                    step={0.5}
-                    value={[secondsPerFrame]}
-                    onValueChange={(value) => setSecondsPerFrame(value[0])}
-                    className="max-w-xs"
-                  />
-                  <span className="text-sm text-gray-500">5s</span>
-                </div>
-              </div>
-              
-              {/* Video format/aspect ratio selection */}
-              <div className="mb-4">
-                <Label className="mb-2 block">Video Format</Label>
-                <ToggleGroup 
-                  type="single" 
-                  value={selectedVideoFormat.aspectRatio} 
-                  onValueChange={(value) => {
-                    if (value && VIDEO_FORMATS[value]) {
-                      setSelectedVideoFormat(VIDEO_FORMATS[value]);
-                    }
-                  }}
-                  className="justify-start flex-wrap gap-2 mt-1"
-                >
-                  {Object.values(VIDEO_FORMATS).map((format) => (
-                    <ToggleGroupItem 
-                      key={format.aspectRatio} 
-                      value={format.aspectRatio}
-                      className="flex flex-col items-center p-2 h-auto data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 border"
+            {/* Video Settings Section - Collapsible */}
+            <Collapsible 
+              open={showVideoSettings} 
+              onOpenChange={setShowVideoSettings}
+              className={`${!showVideoSettings && videoUrl ? 'border-b pb-4 mb-4' : ''}`}
+            >
+              <CollapsibleContent>
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h3 className="text-lg font-medium mb-3 text-blue-600 flex items-center">
+                    <Clock className="mr-2 h-5 w-5" />
+                    Video Settings
+                  </h3>
+                  
+                  {/* Duration settings */}
+                  <div className="mb-4">
+                    <Label htmlFor="secondsPerFrame" className="mb-2 block">
+                      Seconds per Image: {secondsPerFrame}s
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">0.5s</span>
+                      <Slider
+                        id="secondsPerFrame"
+                        defaultValue={[2]}
+                        min={0.5}
+                        max={5}
+                        step={0.5}
+                        value={[secondsPerFrame]}
+                        onValueChange={(value) => setSecondsPerFrame(value[0])}
+                        className="max-w-xs"
+                      />
+                      <span className="text-sm text-gray-500">5s</span>
+                    </div>
+                  </div>
+                  
+                  {/* Video format/aspect ratio selection */}
+                  <div className="mb-4">
+                    <Label className="mb-2 block">Video Format</Label>
+                    <ToggleGroup 
+                      type="single" 
+                      value={selectedVideoFormat.aspectRatio} 
+                      onValueChange={(value) => {
+                        if (value && VIDEO_FORMATS[value]) {
+                          setSelectedVideoFormat(VIDEO_FORMATS[value]);
+                        }
+                      }}
+                      className="justify-start flex-wrap gap-2 mt-1"
                     >
-                      <div className="w-20 mb-1 bg-blue-50 overflow-hidden">
-                        <AspectRatio 
-                          ratio={format.width / format.height}
-                          className="bg-blue-200 flex items-center justify-center text-xs text-blue-800"
+                      {Object.values(VIDEO_FORMATS).map((format) => (
+                        <ToggleGroupItem 
+                          key={format.aspectRatio} 
+                          value={format.aspectRatio}
+                          className="flex flex-col items-center p-2 h-auto data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 border"
                         >
-                          {format.width}x{format.height}
-                        </AspectRatio>
-                      </div>
-                      <span className="text-xs font-medium">{format.name}</span>
-                      {format.platformHint && (
-                        <span className="text-[10px] text-gray-500">{format.platformHint}</span>
-                      )}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </div>
-              
-              <div className="text-sm flex items-center">
-                <span className="mr-2">Estimated video duration:</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
-                  {selectedImages.length > 0 ? `${calculateVideoDuration()} seconds` : "0 seconds"}
-                </span>
-              </div>
-            </div>
-            
-            {/* Create Video Button */}
-            <div className="flex justify-center">
-              <Button
-                onClick={handleCreateVideo}
-                disabled={isCreatingVideo || selectedImages.filter(img => img.selected).length === 0}
-                className="bg-green-600 hover:bg-green-700 w-full max-w-sm"
-                size="lg"
-              >
-                {isCreatingVideo ? (
-                  <span className="flex items-center">
-                    <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-                    Creating Video...
-                  </span>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-5 w-5" />
-                    Create Video
-                  </>
-                )}
-              </Button>
-            </div>
-            
-            {/* Progress bar */}
-            {isCreatingVideo && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Processing frames...</span>
-                  <span>{progress}%</span>
+                          <div className="w-20 mb-1 bg-blue-50 overflow-hidden">
+                            <AspectRatio 
+                              ratio={format.width / format.height}
+                              className="bg-blue-200 flex items-center justify-center text-xs text-blue-800"
+                            >
+                              {format.width}x{format.height}
+                            </AspectRatio>
+                          </div>
+                          <span className="text-xs font-medium">{format.name}</span>
+                          {format.platformHint && (
+                            <span className="text-[10px] text-gray-500">{format.platformHint}</span>
+                          )}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+                  
+                  <div className="text-sm flex items-center">
+                    <span className="mr-2">Estimated video duration:</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                      {selectedImages.length > 0 ? `${calculateVideoDuration()} seconds` : "0 seconds"}
+                    </span>
+                  </div>
                 </div>
-                <Progress value={progress} className="h-2 bg-blue-200" />
-              </div>
-            )}
-            
-            {/* Video Preview Section */}
-            {videoUrl && (
-              <>
-                <div className="border-t border-gray-200 pt-4">
+                
+                {/* Create Video Button */}
+                <div className="flex justify-center mt-4">
+                  <Button
+                    onClick={handleCreateVideo}
+                    disabled={isCreatingVideo || selectedImages.filter(img => img.selected).length === 0}
+                    className="bg-green-600 hover:bg-green-700 w-full max-w-sm"
+                    size="lg"
+                  >
+                    {isCreatingVideo ? (
+                      <span className="flex items-center">
+                        <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+                        Creating Video...
+                      </span>
+                    ) : (
+                      <>
+                        <Play className="mr-2 h-5 w-5" />
+                        Create Video
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Progress bar */}
+                {isCreatingVideo && (
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Processing frames...</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2 bg-blue-200" />
+                  </div>
+                )}
+              </CollapsibleContent>
+
+              {/* Video Preview Section */}
+              {(videoUrl || isVideoPreviewLoading) && (
+                <div className="mt-4">
+                  {!showVideoSettings && (
+                    <Button 
+                      onClick={handleEditSettings} 
+                      variant="outline" 
+                      size="sm"
+                      className="mb-3 text-blue-600 border-blue-300"
+                    >
+                      <Clock className="mr-1 h-4 w-4" />
+                      Edit Video Settings
+                    </Button>
+                  )}
+                  
                   <div className="relative mx-auto bg-black">
                     <AspectRatio 
                       ratio={selectedVideoFormat.width / selectedVideoFormat.height}
                       className="max-w-lg mx-auto"
                     >
-                      <VideoPreview videoUrl={videoUrl} duration={videoDuration} className="w-full h-full" />
+                      <VideoPreview 
+                        videoUrl={videoUrl || ""} 
+                        duration={videoDuration} 
+                        isLoading={isVideoPreviewLoading}
+                        className="w-full h-full" 
+                      />
                     </AspectRatio>
                   </div>
                   
-                  <div className="flex flex-wrap gap-4 justify-center mt-4">
-                    <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    
-                    <Button onClick={handleCopyVideoLink} variant="outline" className="border-purple-500 text-purple-500">
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy Link
-                    </Button>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => handleShareVideo("facebook")} 
-                        variant="outline"
-                        className="border-blue-600 text-blue-600"
-                      >
-                        <Facebook className="h-4 w-4" />
+                  {videoUrl && (
+                    <div className="flex flex-wrap gap-4 justify-center mt-4">
+                      <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
                       </Button>
                       
-                      <Button 
-                        onClick={() => handleShareVideo("twitter")} 
-                        variant="outline"
-                        className="border-sky-500 text-sky-500"
-                      >
-                        <Twitter className="h-4 w-4" />
+                      <Button onClick={handleCopyVideoLink} variant="outline" className="border-purple-500 text-purple-500">
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Link
                       </Button>
                       
-                      <Button 
-                        onClick={() => handleShareVideo("instagram")} 
-                        variant="outline"
-                        className="border-pink-600 text-pink-600"
-                      >
-                        <Instagram className="h-4 w-4" />
-                      </Button>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button 
+                          onClick={() => handleShareVideo("facebook")} 
+                          variant="outline"
+                          className="border-blue-600 text-blue-600"
+                        >
+                          <Facebook className="h-4 w-4" />
+                          <span className="ml-1 hidden sm:inline">Facebook</span>
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => handleShareVideo("twitter")} 
+                          variant="outline"
+                          className="border-sky-500 text-sky-500"
+                        >
+                          <Twitter className="h-4 w-4" />
+                          <span className="ml-1 hidden sm:inline">Twitter</span>
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => handleShareVideo("instagram")} 
+                          variant="outline"
+                          className="border-pink-600 text-pink-600"
+                        >
+                          <Instagram className="h-4 w-4" />
+                          <span className="ml-1 hidden sm:inline">Instagram</span>
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => handleShareVideo("youtube")} 
+                          variant="outline"
+                          className="border-red-600 text-red-600"
+                        >
+                          <Youtube className="h-4 w-4" />
+                          <span className="ml-1 hidden sm:inline">YouTube</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </>
-            )}
+              )}
+            </Collapsible>
           </div>
         </DialogContent>
       </Dialog>
