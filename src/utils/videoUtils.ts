@@ -75,38 +75,34 @@ export const createVideoFromImages = async (
         
         ctx!.drawImage(img, x, y, drawWidth, drawHeight);
         
-        // Draw the overlay information
-        ctx!.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx!.fillRect(0, height - 100, width, 100);
+        // Draw the overlay information - similar to ImageOverlay component
+        ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
+        ctx!.fillRect(0, height - 70, width, 70);
         
-        // Draw lake name
+        // Draw lake name at the top
+        ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
+        ctx!.fillRect(0, 0, width, 40);
         ctx!.fillStyle = "white";
-        ctx!.font = "bold 24px Arial";
-        ctx!.fillText(image.lakeName, 20, height - 60);
+        ctx!.font = "bold 18px sans-serif";
+        ctx!.textAlign = "left";
+        ctx!.fillText(image.lakeName, 15, 26);
         
-        // Draw date and time
-        const formattedDate = new Date(image.timestamp).toLocaleDateString();
-        const formattedTime = new Date(image.timestamp).toLocaleTimeString();
-        ctx!.font = "16px Arial";
-        ctx!.fillText(`${formattedDate} • ${formattedTime}`, 20, height - 30);
+        // Draw date on bottom left
+        const formattedDate = new Date(image.timestamp).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        ctx!.font = "14px sans-serif";
+        ctx!.fillText(formattedDate, 15, height - 35);
         
-        // Draw weight badge
-        ctx!.save();
-        ctx!.beginPath();
-        ctx!.arc(width - 60, height - 50, 40, 0, Math.PI * 2);
-        ctx!.fillStyle = "#3b82f6";
-        ctx!.fill();
-        ctx!.strokeStyle = "white";
-        ctx!.lineWidth = 2;
-        ctx!.stroke();
-        
-        ctx!.fillStyle = "white";
-        ctx!.font = "10px Arial";
-        ctx!.textAlign = "center";
-        ctx!.fillText("CATCH", width - 60, height - 60);
-        ctx!.font = "bold 18px Arial";
-        ctx!.fillText(`${image.weight} LBS`, width - 60, height - 40);
-        ctx!.restore();
+        // Draw weight on bottom right
+        ctx!.textAlign = "right";
+        ctx!.font = "14px sans-serif";
+        ctx!.fillText("Weight:", width - 75, height - 35);
+        ctx!.font = "bold 16px sans-serif";
+        ctx!.fillText(`${image.weight} lbs`, width - 15, height - 35);
+        ctx!.textAlign = "left"; // Reset alignment
         
         // Move to the next frame after the frame duration
         frameIndex++;
