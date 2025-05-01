@@ -1,21 +1,64 @@
 
 import { SelectedImage } from "../types/types";
 
+// Define video aspect ratio options for different platforms
+export type VideoAspectRatio = "square" | "landscape" | "portrait" | "widescreen";
+
+export interface VideoFormat {
+  name: string;
+  width: number;
+  height: number;
+  aspectRatio: VideoAspectRatio;
+  platformHint?: string;
+}
+
+export const VIDEO_FORMATS: Record<string, VideoFormat> = {
+  square: {
+    name: "Square (1:1)",
+    width: 640,
+    height: 640,
+    aspectRatio: "square",
+    platformHint: "Instagram, Facebook"
+  },
+  landscape: {
+    name: "Landscape (4:3)",
+    width: 640,
+    height: 480,
+    aspectRatio: "landscape",
+    platformHint: "Facebook, Twitter"
+  },
+  portrait: {
+    name: "Portrait (9:16)",
+    width: 540,
+    height: 960,
+    aspectRatio: "portrait",
+    platformHint: "Instagram Stories, TikTok"
+  },
+  widescreen: {
+    name: "Widescreen (16:9)",
+    width: 960,
+    height: 540,
+    aspectRatio: "widescreen",
+    platformHint: "YouTube, Twitter"
+  }
+};
+
 export const createVideoFromImages = async (
   images: SelectedImage[],
   fps: number = 1,
+  videoFormat: VideoFormat = VIDEO_FORMATS.landscape,
   onProgress?: (progress: number) => void
 ): Promise<{ videoBlob: Blob; videoUrl: string }> => {
   // In a real implementation, this would use a library like ffmpeg.wasm
   // For this demo, we'll create a simple video from an HTML canvas
   return new Promise((resolve) => {
-    console.log("Creating video from images:", images, "with fps:", fps);
+    console.log("Creating video from images:", images, "with fps:", fps, "and format:", videoFormat);
     
     // Create a canvas element to draw our video frames
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    const width = 640;
-    const height = 480;
+    const width = videoFormat.width;
+    const height = videoFormat.height;
     
     canvas.width = width;
     canvas.height = height;

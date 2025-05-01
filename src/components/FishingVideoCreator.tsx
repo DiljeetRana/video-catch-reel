@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { SelectedImage, ImageOverlayProps } from "../types/types";
-import { createVideoFromImages, downloadVideo, shareToSocialMedia, copyVideoLink } from "../utils/videoUtils";
+import { 
+  createVideoFromImages, 
+  downloadVideo, 
+  shareToSocialMedia, 
+  copyVideoLink,
+  VIDEO_FORMATS,
+  VideoFormat
+} from "../utils/videoUtils";
 import ImageSelector from "./ImageSelector";
 import SelectedImagesPreview from "./SelectedImagesPreview";
 import VideoPreview from "./VideoPreview";
@@ -14,6 +21,10 @@ import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Sample placeholder images - in a real app, these would come from an API or local storage
 const sampleImages = [
@@ -36,6 +47,7 @@ const FishingVideoCreator: React.FC = () => {
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [selectedVideoFormat, setSelectedVideoFormat] = useState<VideoFormat>(VIDEO_FORMATS.landscape);
   const { toast } = useToast();
 
   // Calculate the estimated video duration based on the number of images and seconds per frame
@@ -95,6 +107,7 @@ const FishingVideoCreator: React.FC = () => {
       const { videoBlob, videoUrl } = await createVideoFromImages(
         selectedImages, 
         fps,
+        selectedVideoFormat,
         (progressValue) => {
           setProgress(progressValue);
         }
@@ -301,6 +314,7 @@ const FishingVideoCreator: React.FC = () => {
                 Video Settings
               </h3>
               
+              {/* Duration settings */}
               <div className="mb-4">
                 <Label htmlFor="secondsPerFrame" className="mb-2 block">
                   Seconds per Image: {secondsPerFrame}s
@@ -319,6 +333,42 @@ const FishingVideoCreator: React.FC = () => {
                   />
                   <span className="text-sm text-gray-500">5s</span>
                 </div>
+              </div>
+              
+              {/* Video format/aspect ratio selection */}
+              <div className="mb-4">
+                <Label className="mb-2 block">Video Format</Label>
+                <ToggleGroup 
+                  type="single" 
+                  value={selectedVideoFormat.aspectRatio} 
+                  onValueChange={(value) => {
+                    if (value && VIDEO_FORMATS[value]) {
+                      setSelectedVideoFormat(VIDEO_FORMATS[value]);
+                    }
+                  }}
+                  className="justify-start flex-wrap gap-2 mt-1"
+                >
+                  {Object.values(VIDEO_FORMATS).map((format) => (
+                    <ToggleGroupItem 
+                      key={format.aspectRatio} 
+                      value={format.aspectRatio}
+                      className="flex flex-col items-center p-2 h-auto data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 border"
+                    >
+                      <div className="w-20 mb-1 bg-blue-50 overflow-hidden">
+                        <AspectRatio 
+                          ratio={format.width / format.height}
+                          className="bg-blue-200 flex items-center justify-center text-xs text-blue-800"
+                        >
+                          {format.width}x{format.height}
+                        </AspectRatio>
+                      </div>
+                      <span className="text-xs font-medium">{format.name}</span>
+                      {format.platformHint && (
+                        <span className="text-[10px] text-gray-500">{format.platformHint}</span>
+                      )}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
               </div>
               
               <div className="text-sm flex items-center">
@@ -366,7 +416,14 @@ const FishingVideoCreator: React.FC = () => {
             {videoUrl && (
               <>
                 <div className="border-t border-gray-200 pt-4">
-                  <VideoPreview videoUrl={videoUrl} duration={videoDuration} className="mb-4" />
+                  <div className="relative mx-auto bg-black">
+                    <AspectRatio 
+                      ratio={selectedVideoFormat.width / selectedVideoFormat.height}
+                      className="max-w-lg mx-auto"
+                    >
+                      <VideoPreview videoUrl={videoUrl} duration={videoDuration} className="w-full h-full" />
+                    </AspectRatio>
+                  </div>
                   
                   <div className="flex flex-wrap gap-4 justify-center mt-4">
                     <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
