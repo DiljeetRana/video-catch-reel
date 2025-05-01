@@ -1,4 +1,3 @@
-
 import { SelectedImage } from "../types/types";
 
 // Define video aspect ratio options for different platforms
@@ -131,32 +130,39 @@ export const createVideoFromImages = async (
         
         ctx!.drawImage(img, x, y, drawWidth, drawHeight);
         
-        // Draw the overlay information - similar to ImageOverlay component
+        // Draw the overlay information - UPDATED to match ImageOverlay component
+        // Background overlay for entire image to match the image style
+        ctx!.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx!.fillRect(0, 0, width, height);
+        
+        // Bottom overlay with background blur effect (can't actually blur in Canvas API easily)
         ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
         ctx!.fillRect(0, height - 70, width, 70);
         
-        // Draw lake name at the top
+        // Top overlay
         ctx!.fillStyle = "rgba(0, 0, 0, 0.4)";
         ctx!.fillRect(0, 0, width, 40);
+        
+        // Draw lake name at the top with white text
         ctx!.fillStyle = "white";
-        ctx!.font = "bold 18px sans-serif";
+        ctx!.font = `bold ${Math.max(16, Math.round(width * 0.03))}px sans-serif`;
         ctx!.textAlign = "left";
         ctx!.fillText(image.lakeName, 15, 26);
         
-        // Draw date on bottom left
+        // Draw date on bottom left with white text
         const formattedDate = new Date(image.timestamp).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           year: "numeric",
         });
-        ctx!.font = "14px sans-serif";
+        ctx!.font = `${Math.max(12, Math.round(width * 0.022))}px sans-serif`;
         ctx!.fillText(formattedDate, 15, height - 35);
         
-        // Draw weight on bottom right
+        // Draw weight on bottom right with white text
         ctx!.textAlign = "right";
-        ctx!.font = "14px sans-serif";
+        ctx!.font = `${Math.max(12, Math.round(width * 0.022))}px sans-serif`;
         ctx!.fillText("Weight:", width - 75, height - 35);
-        ctx!.font = "bold 16px sans-serif";
+        ctx!.font = `bold ${Math.max(14, Math.round(width * 0.025))}px sans-serif`;
         ctx!.fillText(`${image.weight} lbs`, width - 15, height - 35);
         ctx!.textAlign = "left"; // Reset alignment
         
