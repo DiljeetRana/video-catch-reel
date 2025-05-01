@@ -4,7 +4,11 @@ import { VideoPreviewProps } from "../types/types";
 import { motion } from "framer-motion";
 import { Clock, Video } from "lucide-react";
 
-const VideoPreview: React.FC<VideoPreviewProps> = ({ videoUrl, duration }) => {
+const VideoPreview: React.FC<VideoPreviewProps> = ({ 
+  videoUrl, 
+  duration,
+  className = "" 
+}) => {
   if (!videoUrl) {
     return null;
   }
@@ -18,7 +22,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({ videoUrl, duration }) => {
 
   return (
     <motion.div 
-      className="rounded-lg overflow-hidden shadow-lg bg-white"
+      className={`rounded-lg overflow-hidden shadow-lg bg-white ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

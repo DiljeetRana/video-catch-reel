@@ -8,6 +8,7 @@ import VideoPreview from "./VideoPreview";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
@@ -33,7 +34,7 @@ const FishingVideoCreator: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [secondsPerFrame, setSecondsPerFrame] = useState<number>(2);
   const [videoDuration, setVideoDuration] = useState<number>(0);
-  const [showVideoSection, setShowVideoSection] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Calculate the estimated video duration based on the number of images and seconds per frame
@@ -140,7 +141,7 @@ const FishingVideoCreator: React.FC = () => {
   };
 
   const handleExportVideo = () => {
-    setShowVideoSection(true);
+    setVideoDialogOpen(true);
   };
 
   const selectedCount = selectedImages.length;
@@ -213,15 +214,13 @@ const FishingVideoCreator: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-blue-600">Selected Images ({selectedCount})</h2>
               
-              {!showVideoSection && (
-                <Button
-                  onClick={handleExportVideo}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <Video className="mr-2 h-5 w-5" />
-                  Export to Video
-                </Button>
-              )}
+              <Button
+                onClick={handleExportVideo}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Video className="mr-2 h-5 w-5" />
+                Export to Video
+              </Button>
             </div>
             
             <SelectedImagesPreview
@@ -233,20 +232,23 @@ const FishingVideoCreator: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Video Settings and Creation Section - Only shown after Export to Video is clicked */}
-      {showVideoSection && (
-        <>
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="border shadow p-6">
-              <h2 className="text-xl font-semibold mb-4 text-blue-600 flex items-center">
+      {/* Video Creation Dialog */}
+      <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-blue-700 flex items-center">
+              <Video className="mr-2 h-5 w-5" />
+              Create Fishing Video
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 my-4">
+            {/* Video Settings Section */}
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h3 className="text-lg font-medium mb-3 text-blue-600 flex items-center">
                 <Clock className="mr-2 h-5 w-5" />
                 Video Settings
-              </h2>
+              </h3>
               
               <div className="mb-4">
                 <Label htmlFor="secondsPerFrame" className="mb-2 block">
@@ -268,31 +270,40 @@ const FishingVideoCreator: React.FC = () => {
                 </div>
               </div>
               
-              <div className="text-sm flex items-center mb-4">
+              <div className="text-sm flex items-center">
                 <span className="mr-2">Estimated video duration:</span>
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
                   {selectedImages.length > 0 ? `${calculateVideoDuration()} seconds` : "0 seconds"}
                 </span>
               </div>
-              
-              <div className="flex flex-wrap gap-4">
-                <Button
-                  onClick={handleCreateVideo}
-                  disabled={isCreatingVideo || selectedImages.filter(img => img.selected).length === 0}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {isCreatingVideo ? (
-                    <>Creating Video...</>
-                  ) : (
-                    <>
-                      <Play className="mr-2 h-4 w-4" />
-                      Create Video
-                    </>
-                  )}
-                </Button>
-
-                {videoUrl && (
+            </div>
+            
+            {/* Create Video Button */}
+            <div className="flex justify-center">
+              <Button
+                onClick={handleCreateVideo}
+                disabled={isCreatingVideo || selectedImages.filter(img => img.selected).length === 0}
+                className="bg-green-600 hover:bg-green-700 w-full max-w-sm"
+                size="lg"
+              >
+                {isCreatingVideo ? (
+                  <>Creating Video...</>
+                ) : (
                   <>
+                    <Play className="mr-2 h-5 w-5" />
+                    Create Video
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            {/* Video Preview Section */}
+            {videoUrl && (
+              <>
+                <div className="border-t border-gray-200 pt-4">
+                  <VideoPreview videoUrl={videoUrl} duration={videoDuration} className="mb-4" />
+                  
+                  <div className="flex flex-wrap gap-4 justify-center mt-4">
                     <Button onClick={handleDownloadVideo} variant="outline" className="border-blue-500 text-blue-500">
                       <Download className="mr-2 h-4 w-4" />
                       Download
@@ -323,24 +334,13 @@ const FishingVideoCreator: React.FC = () => {
                         <Instagram className="h-4 w-4" />
                       </Button>
                     </div>
-                  </>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-
-          {videoUrl && (
-            <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <VideoPreview videoUrl={videoUrl} duration={videoDuration} />
-            </motion.div>
-          )}
-        </>
-      )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <motion.div
         initial={{ opacity: 0 }}
