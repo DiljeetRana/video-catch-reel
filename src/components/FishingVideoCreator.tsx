@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Facebook, Twitter, Instagram, Video, Download, Play, Images, Clock, Trash2, Copy, LoaderCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 
 // Sample placeholder images - in a real app, these would come from an API or local storage
 const sampleImages = [
@@ -34,6 +35,7 @@ const FishingVideoCreator: React.FC = () => {
   const [secondsPerFrame, setSecondsPerFrame] = useState<number>(2);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
   // Calculate the estimated video duration based on the number of images and seconds per frame
@@ -86,10 +88,17 @@ const FishingVideoCreator: React.FC = () => {
     }
 
     setIsCreatingVideo(true);
+    setProgress(0);
     try {
       // Calculate FPS as 1/secondsPerFrame
       const fps = 1 / secondsPerFrame;
-      const { videoBlob, videoUrl } = await createVideoFromImages(selectedImages, fps);
+      const { videoBlob, videoUrl } = await createVideoFromImages(
+        selectedImages, 
+        fps,
+        (progressValue) => {
+          setProgress(progressValue);
+        }
+      );
       setCreatedVideoBlob(videoBlob);
       setVideoUrl(videoUrl);
       
@@ -329,7 +338,10 @@ const FishingVideoCreator: React.FC = () => {
                 size="lg"
               >
                 {isCreatingVideo ? (
-                  <>Creating Video...</>
+                  <span className="flex items-center">
+                    <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+                    Creating Video...
+                  </span>
                 ) : (
                   <>
                     <Play className="mr-2 h-5 w-5" />
@@ -338,6 +350,17 @@ const FishingVideoCreator: React.FC = () => {
                 )}
               </Button>
             </div>
+            
+            {/* Progress bar */}
+            {isCreatingVideo && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Processing frames...</span>
+                  <span>{progress}%</span>
+                </div>
+                <Progress value={progress} className="h-2 bg-blue-200" />
+              </div>
+            )}
             
             {/* Video Preview Section */}
             {videoUrl && (

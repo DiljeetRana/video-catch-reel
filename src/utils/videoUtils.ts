@@ -1,8 +1,10 @@
+
 import { SelectedImage } from "../types/types";
 
 export const createVideoFromImages = async (
   images: SelectedImage[],
-  fps: number = 1
+  fps: number = 1,
+  onProgress?: (progress: number) => void
 ): Promise<{ videoBlob: Blob; videoUrl: string }> => {
   // In a real implementation, this would use a library like ffmpeg.wasm
   // For this demo, we'll create a simple video from an HTML canvas
@@ -37,6 +39,10 @@ export const createVideoFromImages = async (
       // Combine all chunks to create the final video
       const videoBlob = new Blob(chunks, { type: "video/webm" });
       const videoUrl = URL.createObjectURL(videoBlob);
+      
+      // Report 100% progress when done
+      if (onProgress) onProgress(100);
+      
       resolve({ videoBlob, videoUrl });
     };
     
@@ -44,6 +50,7 @@ export const createVideoFromImages = async (
     mediaRecorder.start();
     
     let frameIndex = 0;
+    const totalFrames = images.length;
     const frameDuration = 1000 / fps; // Convert fps to milliseconds between frames
     
     // Function to draw the next frame
@@ -51,6 +58,12 @@ export const createVideoFromImages = async (
       if (frameIndex >= images.length) {
         mediaRecorder.stop();
         return;
+      }
+      
+      // Report progress percentage
+      if (onProgress) {
+        const progress = Math.round((frameIndex / totalFrames) * 100);
+        onProgress(progress);
       }
       
       const image = images[frameIndex];
